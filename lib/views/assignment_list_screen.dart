@@ -14,19 +14,38 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
   void _showAddAssignmentDialog() {
     String newAssignmentTitle = '';
+    DateTime? dueDate;
     
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Add Assignment'),
-          content: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(hintText: 'Enter assignment title'),
-            onChanged: (value) {
-              newAssignmentTitle = value;
-            },
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                autofocus: true,
+                decoration: const InputDecoration(hintText: 'Enter assignment title'),
+                onChanged: (value) {
+                  newAssignmentTitle = value;
+                },
+              ),
+
+              TextButton(
+                onPressed: () async {
+                  dueDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2035),
+                  );
+                },
+                child: const Text('Select Due Date'),
+              ),
+            ],
           ),
+
           actions: [
             TextButton(
               onPressed: ()  => Navigator.pop(context), // Cancel button
@@ -36,7 +55,7 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
               onPressed: () {
                 if (newAssignmentTitle.trim().isNotEmpty) {
                   setState(() {
-                    _presenter.addAssignment(newAssignmentTitle.trim());
+                    _presenter.addAssignment(newAssignmentTitle.trim(), dueDate);
                   });
                 }
                 Navigator.pop(context);
@@ -66,6 +85,9 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
                 decoration: assignment.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
               ),  
             ),
+            subtitle: assignment.dueDate != null
+                ? Text('Due: ${assignment.dueDate!.month}/${assignment.dueDate!.day}/${assignment.dueDate!.year}')
+                : const Text('No due date'),
             value: assignment.isCompleted,
             onChanged: (value) {
               setState(() {
