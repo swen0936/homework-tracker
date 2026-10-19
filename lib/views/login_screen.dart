@@ -54,6 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _passwordController,
               obscureText: true,
+              onChanged: (value) {
+                if (_errorMessage != null) {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                }
+              },
               decoration: const InputDecoration(labelText: 'Password'),
             ),
             const SizedBox(height: 20),
