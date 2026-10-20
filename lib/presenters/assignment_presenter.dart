@@ -5,11 +5,20 @@ class AssignmentPresenter {
 
   List<Assignment> get assignments => _assignments;
 
-  void addAssignment(String title, DateTime? dueDate) {
-    _assignments.add(Assignment(title: title, dueDate: dueDate));
+  Future<void> loadAssignments() async {
+    final fetched = await Assignment.fetchAssignments();
+    _assignments
+      ..clear()
+      ..addAll(fetched);
   }
 
-  void toggleCompleted(int index) {
+  Future<void> addAssignment(String title) async {
+    await Assignment.addAssignment(title);
+    _assignments.add(Assignment(title: title));
+  }
+
+  Future<void> toggleCompleted(int index) async {
+    await Assignment.updateCompletionStatus(index, _assignments);
     _assignments[index].isCompleted = !_assignments[index].isCompleted;
   }
 }
