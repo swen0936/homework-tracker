@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../presenters/assignment_presenter.dart';
 import '../presenters/course_presenter.dart';
 import '../widgets/add_fab.dart';
+import '../widgets/dialog_action_buttons.dart';
 
 class AssignmentListScreen extends StatefulWidget {
   const AssignmentListScreen({super.key});
@@ -98,21 +99,25 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: ()  => Navigator.pop(context), // Cancel button
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
+            DialogActionButtons(
+              onCancel: () {
+                debugPrint('Cancel Button pressed');
+                Navigator.of(context).pop();
+                debugPrint('Dialog closed');
+              },
+              onAdd: () async {
                 if (newAssignmentTitle.trim().isNotEmpty &&
-                    _newAssignmentCourse != null) { 
-                  await _assignmentPresenter.addAssignment(newAssignmentTitle.trim(),
-                      _newAssignmentCourse!);
-                  setState(() {}); // Refresh the list
+                    _newAssignmentCourse != null) {
+                  await _assignmentPresenter.addAssignment(
+                    newAssignmentTitle.trim(),
+                    _newAssignmentCourse!,
+                  );
+
+                  if (!mounted) return;
+                  setState(() {});
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Add'),
             ),
           ],
         );

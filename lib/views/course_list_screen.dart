@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../presenters/course_presenter.dart';
 import '../widgets/add_fab.dart';
+import '../widgets/dialog_action_buttons.dart';
 
 class CourseListScreen extends StatefulWidget {
   const CourseListScreen({super.key});
@@ -54,19 +55,23 @@ class _CourseListScreenState extends State<CourseListScreen> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async{
+            DialogActionButtons(
+              onCancel: () {
+                Navigator.of(context).pop();
+              },
+              onAdd: () async {
                 if (name.trim().isNotEmpty) {
-                  await presenter.addCourse(name.trim(), description);
-                  setState(() {}); // Refresh the list
-                  Navigator.pop(context);
+                  await presenter.addCourse(
+                    name.trim(),
+                    description?.trim(),
+                  );
+
+                  if (!mounted) return;
+
+                  setState(() {});
+                  Navigator.of(context).pop();
                 }
               },
-              child: const Text('Add'),
             ),
           ],
         );
