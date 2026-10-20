@@ -12,6 +12,7 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
   final AssignmentPresenter _presenter = AssignmentPresenter();
   bool _isLoading = true;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -81,27 +82,56 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final assignments = _presenter.assignments;
+    final assignments = _presenter.assignments.where((assignment) {
+      return assignment.title.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+    
 
     return Scaffold(
       appBar: AppBar(title: const Text('Assignments')),
-      body: 
-        _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: assignments.length,
-              itemBuilder: (context, index) {
-                final assignment = assignments[index];
-                return CheckboxListTile(
-                  title: Text(assignment.title),
-                  value: assignment.isCompleted,
-                  onChanged: (_) async {
-                    await _presenter.toggleCompleted(index);
-                    setState(() {}); // Refresh the list
-                  }
-                );
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Search assignments...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
               },
             ),
+          ),
+
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: assignments.length,
+                    itemBuilder: (context, index) {
+                      final assignment = assignments[index];
+
+                      return CheckboxListTile(
+                        title: Text(assignment.title),
+                        value: assignment.isCompleted,
+                        onChanged: (_) async {
+                          await _presenter.toggleCompleted(
+                            _presenter.assignments.indexOf(assignment),
+                          );
+
+                          if (!mounted) return;
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton( 
         onPressed: _showAddAssignmentDialog, // use the dialog function
         child: const Icon(Icons.add),
