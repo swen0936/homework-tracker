@@ -5,10 +5,12 @@ class Assignment {
   final String title;
   final DateTime? dueDate;
   bool isCompleted;
+  final String courseName;
 
   Assignment({
     required this.title,
     this.dueDate,
+    required this.courseName,
     this.isCompleted = false,
   });
 
@@ -27,6 +29,7 @@ class Assignment {
       data.forEach((key, value) {
         assignments.add(Assignment(
           title: value['title'],
+          courseName: value['courseName'] ?? 'Unknown',
           isCompleted: value['isCompleted']
           ));
       });
@@ -34,13 +37,14 @@ class Assignment {
     return assignments;
   }
 
-  static Future<void> addAssignment(String title) async {
+  static Future<void> addAssignment(String title, String courseName) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
     final newRef = _db.child('assignments/$userId').push();
     await newRef.set({
       'title': title,
+      'courseName': courseName,
       'isCompleted': false,
     });
   }

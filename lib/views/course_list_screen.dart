@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../presenters/course_presenter.dart';
+import '../widgets/add_fab.dart';
 
 class CourseListScreen extends StatefulWidget {
   const CourseListScreen({super.key});
@@ -20,8 +21,15 @@ class _CourseListScreenState extends State<CourseListScreen> {
   }
 
   Future<void> _loadCourses() async {
-    await presenter.loadCourses();
-    setState(() => _isLoading = false);
+    try {
+      await presenter.loadCourses();
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    } catch (e) {
+      debugPrint('Error loading courses: $e');
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   void _showAddCourseDialog() {
@@ -111,10 +119,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddCourseDialog,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: AddFAB(onPressed: _showAddCourseDialog),
     );
   }
 }
